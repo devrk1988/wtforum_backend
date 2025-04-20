@@ -28,7 +28,7 @@ router.post('/create-topic', async (req, res) => {
 
 	axios.request(config)
 	.then((response) => {
-	  res.status(200).json( JSON.stringify(response.data) );
+	  res.status(200).json( response.data );
 	})
 	.catch((error) => {
 	    console.error('Error calling third-party API:', error.message);
