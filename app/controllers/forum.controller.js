@@ -5,19 +5,12 @@ export const forumCustomerCreateWebhook = async (req, res, next) => {
   //const requestData = JSON.parse(requestBody);
   const forumObj = new FORUM();
   
-  const forum_user_id = requestBody.id;
-  const forum_username = requestBody.data.object.username;
+  const forum_user_id   = requestBody.data.object.userId;
+  const forum_username  = requestBody.data.object.username;
   const forum_userTitle = requestBody.data.object.userTitle;
   const forum_userEmail = requestBody.data.object.email;
   
-  console.log(forum_user_id);
-  console.log(forum_username);
-  console.log(forum_userTitle);
-  console.log(forum_userEmail);
-  
-  /*if (requestData.type === 'user.created') {
-    console.log(requestData.id);
-  }*/
+  if (requestBody.type === 'user.created') {
 	
 	let data = JSON.stringify({
 		"query": "query { customers(first: 1, query: \"email:"+forum_userEmail+"\") { edges { node { id } } } }"
@@ -61,8 +54,8 @@ export const forumCustomerCreateWebhook = async (req, res, next) => {
 		};
 		const result4 = await updateCustomerMetafield(res,customerId, metafield4);
 	}
-	
-	res.sendStatus(200);	
+  }
+  res.sendStatus(200);	
 }
 
 
