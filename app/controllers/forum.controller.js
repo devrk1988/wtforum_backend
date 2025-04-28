@@ -151,6 +151,7 @@ export const getUserPosts = async (req, res, next) => {
 		var membersince = new Date(topicInfo.data.author.joinDateTimestamp * 1000).toDateString();
 		var firstpost = topicInfo.data.firstPost.message;
 		var timestAgo = timeAgo(new Date(topicInfo.data.firstPost.postTimestamp * 1000));
+		var firstPostId = topicInfo.data.firstPost.postId;
 		
 		var divContent = `
 			<div id="" class="secondary-header">
@@ -194,51 +195,53 @@ export const getUserPosts = async (req, res, next) => {
 		const postsData = await forumObj.websiteToolboxCurlRequest(res, 'posts?topicId='+topicid+'&sort=latest&limit=5', 'GET');
 		var postDatas = postsData.data.data;
 
-		postDatas.forEach(post => {
-			var finalMessage = post.message;
-			
-			const blockquoteMatch = post.message.match(/<blockquote[\s\S]*?<\/blockquote>/i);
-			const blockquote = blockquoteMatch ? blockquoteMatch[0] : null;
+		postDatas.forEach(post => {	
+			if (post.postId!=firstPostId)
+			{
+				var finalMessage = post.message;
+				const blockquoteMatch = post.message.match(/<blockquote[\s\S]*?<\/blockquote>/i);
+				const blockquote = blockquoteMatch ? blockquoteMatch[0] : null;
 
-			const usernameMatch = blockquote ? blockquote.match(/data-username="([^"]+)"/) : null;
-			const username = usernameMatch ? usernameMatch[1] : null;
+				const usernameMatch = blockquote ? blockquote.match(/data-username="([^"]+)"/) : null;
+				const username = usernameMatch ? usernameMatch[1] : null;
 
-			if (blockquote && username) {
-			  const updatedBlockquote = blockquote.replace(
-				/(<blockquote[^>]*>)/i,
-				`$1<br><em><a href="void()"> @${username}</a> Wrote: </em><br>`
-			  );
-			  const messageWithoutBlockquote = post.message.replace(blockquote, '').trim();			  
-			  finalMessage = `${updatedBlockquote}\n${messageWithoutBlockquote}`;
+				if (blockquote && username) {
+				  const updatedBlockquote = blockquote.replace(
+					/(<blockquote[^>]*>)/i,
+					`$1<br><em><a href="void()"> @${username}</a> Wrote: </em><br>`
+				  );
+				  const messageWithoutBlockquote = post.message.replace(blockquote, '').trim();			  
+				  finalMessage = `${updatedBlockquote}\n${messageWithoutBlockquote}`;
+				}
+
+
+				divContent += `
+					<div class="post-item">
+						<div class="post-author">
+							<div class="author-info">
+								<em>${post.author.userTitle || 'Member'}</em>
+								<small>${post.author.postCount || 0} posts</small>
+							</div>
+						</div>
+						<div class="post-body-wrapper">
+							<div class="post-body">
+								<div class="post-body-author">
+									<a href="javascript:void(0);" class="display_name">${post.author.displayNameAndUsername}</a>
+									<div class="post-date">${ timeAgo(new Date(post.postTimestamp * 1000)) }</div>
+								</div>
+								<div class="post-body-content">
+									${finalMessage}
+								</div>
+								<div class="post-options">
+									<a href="javascript:void(0);" class="quote">Reply</a>
+									<a href="javascript:void(0);" class="voted-yes">Like (${post.likeCount || 0})</a>
+									<a href="javascript:void(0);" class="dislike_post">Dislike (${post.dislikeCount || 0})</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				`;
 			}
-
-
-			divContent += `
-				<div class="post-item">
-					<div class="post-author">
-						<div class="author-info">
-							<em>${post.author.userTitle || 'Member'}</em>
-							<small>${post.author.postCount || 0} posts</small>
-						</div>
-					</div>
-					<div class="post-body-wrapper">
-						<div class="post-body">
-							<div class="post-body-author">
-								<a href="javascript:void(0);" class="display_name">${post.author.displayNameAndUsername}</a>
-								<div class="post-date">${ timeAgo(new Date(post.postTimestamp * 1000)) }</div>
-							</div>
-							<div class="post-body-content">
-								${finalMessage}
-							</div>
-							<div class="post-options">
-								<a href="javascript:void(0);" class="quote">Reply</a>
-								<a href="javascript:void(0);" class="voted-yes">Like (${post.likeCount || 0})</a>
-								<a href="javascript:void(0);" class="dislike_post">Dislike (${post.dislikeCount || 0})</a>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;
 		});
 
 	    res.send(`<div id=forum_container>${divContent}</div>`);
