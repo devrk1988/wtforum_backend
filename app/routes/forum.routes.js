@@ -1,6 +1,6 @@
 // Imports
 import express from 'express';
-import { createForumTopic, forumCustomerCreateWebhook } from '../controllers/forum.controller.js';
+import { createForumTopic, forumCustomerCreateWebhook, getUserPosts } from '../controllers/forum.controller.js';
 
 // Initialize router
 const router = express.Router();
@@ -8,6 +8,7 @@ const router = express.Router();
 // Define routes
 router.post('/create-topic', createForumTopic);
 router.post('/update-customer-meta', forumCustomerCreateWebhook);
+router.post('/get-user-posts', getUserPosts);
 
 // Export route setup function
 const forumRoutes = (app) => {
