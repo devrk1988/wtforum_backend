@@ -154,21 +154,157 @@ export const getUserPosts = async (req, res, next) => {
 		var firstPostId = topicInfo.data.firstPost.postId;
 		
 		var divContent = `
-			<div id="" class="secondary-header">
-				<div class="container">
-					<span id="subscribe_topic" data-forum="982386">
-						<a id="edit_subject" class="pull-left topic-title change-value" data-placement="bottom" data-toggle="#editTopic" data-pk="1">
-							<span id="editableSubject" class="editable" tabindex="-1">${title}</span>
-						</a>
-					</span>
-					<div class="topic-tools pull-right">					
-						<a id="sub_post_reply" class="pull-right btn btn-uppercase btn-primary " data-i18n="" data-original-title="" title="">Reply</a>
-					</div>
-				</div>
-			</div>
+		<style>
+#forum_container {
+  font-family: Arial, sans-serif;
+  max-width: 1660px;
+  padding: 0px 55px;
+}
+.post-item {
+  display: flex;
+  background: transparent;
+  border: transparent;
+  border-radius: 8px;
+  padding: 0px;
+  margin-top: 20px;
+}
+.post-author {
+  width: 150px;
+  min-width: 150px;
+  border-right: none;
+  padding-right: 10px;
+  text-align: center;
+}
+.post-body-wrapper {
+  padding-left: 0px;position: relative;
+}
+.post-body-wrapper::after {
+  content: " ";
+  position: absolute;
+  float: right;
+  margin: 15px 0 15px 15px;
+  border-top: 0 solid transparent;
+  border-bottom: 30px solid transparent;
+  left: -40px;
+  top: 10px;
+  border-right: 25px solid #fff;
+}
+.post-body {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+.author-first-letter {
+  width: 60px;
+  height: 60px;
+  background: #6e6f9d;
+  font-size: 34px;
+  color: #fff;
+  border-radius: 100%;
+  display: inline-block;
+  line-height: 60px;
+}
+.author-info em {
+  display: block;
+  font-style: normal;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 0px;
+  font-style: italic;
+  line-height: 14px;
+  margin-top: 5px;
+}
+#forum_container a {
+  color: #1a1a1a;
+  text-decoration: none;
+}
+.post-body-author .display_name {
+  background: transparent;
+  color: #000;
+  padding:0px;
+  border-radius: 4px;
+  font-size: 15px;
+}
+.post-body-author .display_name:hover {
+  background: transparent;
+  color: #000;
+  text-decoration: none;
+}
+.post-body-author {
+  flex-wrap: wrap;gap: 0px;
+}
+.form-bottom-section {
+  margin: 30px 0px 30px 149px;
+  background: #fff;
+  padding: 20px;
+}
+.start-discution-btn {
+  text-align: center;
+}
+.start-discution-btn button {
+  background-color: #e33c44;
+  border: none;
+  color: #fff;
+  padding: 10px 40px;
+  font-size: 22px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.form-bottom-section textarea {
+  width: 100%;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+.reply-section .field-input textarea {  width: 80%;
+  border-radius: 6px;
+  margin-bottom: 15px;} 
+.form-bottom-section button, .reply-section button {
+  background-color: #2f2e2e;
+  border: none;
+  color: #fff;
+  padding: 6px 20px;
+  font-size: 14px;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+.post-body-content blockquote {
+  background: transparent;
+  border-left: 1px solid #ece7e7;
+  margin: 0px 0 20px;
+  padding: 0px 10px 10px;
+  font-size: 13px;
+  text-align: left;
+  color: #555;
+}
+.display_name {
+  width: 100%;
+  margin-bottom: 3px;
+}
+.post-date {
+  font-size: 12px;
+  color: #666;
+  font-weight: 400;
+}
+.reply-section {
+  margin-top: 20px;
+}
+.voted-yes {
+  color: #0a3d91 !important;
+  font-weight: 500;
+}
+.dislike_post {
+  color: #e31c44 !important;
+  font-weight: 500;
+}
+		</style>
+		
+		
 			<div class="post-item">
 					<div class="post-author">
 						<div class="author-info">
+						<div class="author-first-letter">G</div>
 							<em>${userTitle || 'Member'}</em>
 							<small>${postCount || 0} posts</small>
 						</div>
@@ -190,6 +326,7 @@ export const getUserPosts = async (req, res, next) => {
 						</div>
 					</div>
 				</div>
+
 		`;
 		
 		const postsData = await forumObj.websiteToolboxCurlRequest(res, 'posts?topicId='+topicid+'&sort=latest&limit=5', 'GET');
@@ -208,7 +345,7 @@ export const getUserPosts = async (req, res, next) => {
 				if (blockquote && username) {
 				  const updatedBlockquote = blockquote.replace(
 					/(<blockquote[^>]*>)/i,
-					`$1<br><em><a href="void()"> @${username}</a> Wrote: </em><br>`
+					`$1<em><a href="void()"> @${username}</a> Wrote: </em><br>`
 				  );
 				  const messageWithoutBlockquote = post.message.replace(blockquote, '').trim();			  
 				  finalMessage = `${updatedBlockquote}\n${messageWithoutBlockquote}`;
@@ -219,6 +356,7 @@ export const getUserPosts = async (req, res, next) => {
 					<div class="post-item">
 						<div class="post-author">
 							<div class="author-info">
+							<div class="author-first-letter">G</div>
 								<em>${post.author.userTitle || 'Member'}</em>
 								<small>${post.author.postCount || 0} posts</small>
 							</div>
@@ -232,6 +370,12 @@ export const getUserPosts = async (req, res, next) => {
 								<div class="post-body-content">
 									${finalMessage}
 								</div>
+								 <div class="reply-section">
+								 <div class="field-input">
+             <textarea row="5"></textarea>
+             </div>
+             <button>Submit </button>
+           </div>
 								<div class="post-options">
 									<a href="javascript:void(0);" class="quote">Reply</a>
 									<a href="javascript:void(0);" class="voted-yes">Like (${post.likeCount || 0})</a>
@@ -244,7 +388,13 @@ export const getUserPosts = async (req, res, next) => {
 			}
 		});
 
-	    res.send(`<div id=forum_container>${divContent}</div>`);
+	    res.send(`<div id=forum_container>${divContent}
+           <div class="form-bottom-section">
+             <textarea row="8"></textarea>
+             <button>Submit </button>
+           </div>
+           <div class="start-discution-btn"> <button>Start Discussion </button> </div
+	    	</div>`);
 	}
 }
 
