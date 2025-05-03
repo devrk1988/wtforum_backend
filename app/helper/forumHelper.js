@@ -59,8 +59,9 @@ class FORUM {
 			  return response;
 		})
 		.catch((error) => {
-		  //console.log(error);
-		  res.status(500).send({ status: "error", 'message' : error });		
+		  console.log(error);
+		  res.send({ status: "error", 'message' : 'No Post Found' });	
+		  //res.status(500).send({ status: "error", 'message' : error });		
 		});     
     }
 	

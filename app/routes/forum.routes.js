@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Define routes
 router.post('/create-topic', createForumTopic);
+router.post('/create-topic-post', createForumTopicPost);
 router.post('/update-customer-meta', forumCustomerCreateWebhook);
 router.post('/get-user-posts', getUserPosts);
 

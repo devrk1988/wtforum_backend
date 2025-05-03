@@ -149,9 +149,37 @@ export const createForumTopic = async (req, res, next) => {
   }
 };
 
+export const createForumTopicPost = async (req, res, next) => {
+	try {
+	  const { topicid, username, content } = req.body;
+  
+	  const data = JSON.stringify({
+		topicid: topicid,
+		content: content,
+		username: username,
+	  });
+  
+	  const forumObj = new FORUM();
+  
+	  const newpost = await forumObj.websiteToolboxCurlRequest(res, 'posts', 'POST', data);
+  
+	  if (newpost) {
+		var postId = newpost.data.postId;
+		if( postId ) {
+			  res.status(200).send({ postId : postId });
+			  return;
+		  }
+	  } else {
+		res.status(500).send({ status: 'error', message: 'Something went wrong' });
+	  }
+	} catch (error) {
+	  console.error('Error:', error);
+	  res.status(500).send({ status: 'error', message: 'Internal server error' });
+	}
+};
+
 export const getUserPosts = async (req, res, next) => {
 	const { topicid } = req.body;
-	
 	const forumObj = new FORUM();
 	const topicInfo = await forumObj.websiteToolboxCurlRequest(res, 'topics/'+topicid, 'GET');
 	if (topicInfo) {
