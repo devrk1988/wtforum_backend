@@ -1,6 +1,6 @@
 // Imports
 import express from 'express';
-import { createForumTopic, forumCustomerCreateWebhook, getUserPosts } from '../controllers/forum.controller.js';
+import { createForumTopic, forumCustomerCreateWebhook, getUserPosts, createForumTopicPost } from '../controllers/forum.controller.js';
 
 // Initialize router
 const router = express.Router();

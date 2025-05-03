@@ -36,7 +36,7 @@ class FORUM {
 		});     
     }
 	
-	async websiteToolboxCurlRequest(res,url_suffix, method = "GET", payload = false) {
+	async websiteToolboxCurlRequest(res,url_suffix, method = "GET", payload = false, username = this.wt_api_username) {
 		
 		let config = {
 		  method: method,
@@ -46,7 +46,7 @@ class FORUM {
 			'Content-Type': 'application/json', 
 			'Accept': 'application/json', 
 			'x-api-key': this.wt_api_key , 
-			'x-api-username': this.wt_api_username
+			'x-api-username': username
 		  }
 		};
 		

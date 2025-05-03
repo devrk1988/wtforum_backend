@@ -151,17 +151,17 @@ export const createForumTopic = async (req, res, next) => {
 
 export const createForumTopicPost = async (req, res, next) => {
 	try {
-	  const { topicid, username, content } = req.body;
+	  const { topicId, username, content } = req.body;
   
 	  const data = JSON.stringify({
-		topicid: topicid,
+		topicId: topicId,
 		content: content,
 		username: username,
 	  });
   
 	  const forumObj = new FORUM();
   
-	  const newpost = await forumObj.websiteToolboxCurlRequest(res, 'posts', 'POST', data);
+	  const newpost = await forumObj.websiteToolboxCurlRequest(res, 'posts', 'POST', data, username);
   
 	  if (newpost) {
 		var postId = newpost.data.postId;
@@ -195,6 +195,7 @@ export const getUserPosts = async (req, res, next) => {
 		var firstPostId = topicInfo.data.firstPost.postId;
 		
 		var divContent = `
+			<input type="hidden" id="p_topic_id" value="${topicid}" />
 			<div class="post-item">
 					<div class="post-author">
 						<div class="author-info">
@@ -245,6 +246,8 @@ export const getUserPosts = async (req, res, next) => {
 				  const messageWithoutBlockquote = post.message.replace(blockquote, '').trim();			  
 				  finalMessage = `${updatedBlockquote}\n${messageWithoutBlockquote}`;
 				}
+				
+				let replyOn = post.message.replace(/<blockquote[\s\S]*?<\/blockquote>/, '');
 
 
 				divContent += `
@@ -265,11 +268,17 @@ export const getUserPosts = async (req, res, next) => {
 								<div class="post-body-content">
 									${finalMessage}
 								</div>
-								<div class="reply-section" style="display:none;">
-									<div class="field-input"><textarea row="5"></textarea></div><button>Submit </button>
+								<div id="reply-section_${post.postId}" class="reply-section" style="display:none;">
+									<div class="field-input">
+										<textarea row="5" id="reply_text_${post.postId}"></textarea>
+										<span id="forum_error_${post.postId}" class="forum_error" style="display:none;">Please enter text </span>
+									</div>
+									<button id="reply_btn_${post.postId}" onclick="submitReply('${post.postId}');">Submit </button>
+									<div id="reply_loading_div_${post.postId}" style="display:none;margin-left:25px;">Please Wait . . . .</div>
 								</div>
 								<div class="post-options">
-									<a href="javascript:void(0);" class="quote">${replySvg} Reply</a>
+									<textarea id="reply_${post.postId}" style="display:none;">${replyOn}</textarea>
+									<a href="javascript:void(0);" onclick="replyOnPostValidate('${post.postId}');" class="quote">${replySvg} Reply</a>
 									<a href="javascript:void(0);" class="voted-yes">${likeSvg} Like (${post.likeCount || 0})</a>
 									<a href="javascript:void(0);" class="dislike_post">${dislikeSvg} Dislike (${post.dislikeCount || 0})</a>
 								</div>
