@@ -196,6 +196,17 @@ export const getUserPosts = async (req, res, next) => {
 		
 		var divContent = `
 			<input type="hidden" id="p_topic_id" value="${topicid}" />
+			
+			<div class="start-post-btn">
+				<button id="newpost_btn" onclick="addNewPost('${topicid}');">Add Post</button>
+			</div>
+			<div class="form-bottom-section" style="display:none;" id="new_post_initiate_form" >
+				<textarea id="post_forum_textarea" row="8"></textarea>
+				<span id="post_forum_error" class="forum_error" style="display:none;">Please enter text </span>
+				<button id="post_new_submit" onclick="addNewPostSubmit('${topicid}');">Submit </button>
+				<div id="post_loading_div" style="display:none;margin-left:25px;">Please Wait . . . .</div>
+			</div>
+
 			<div class="post-item">
 					<div class="post-author">
 						<div class="author-info">
@@ -288,12 +299,6 @@ export const getUserPosts = async (req, res, next) => {
 				`;
 			}
 		});
-		
-		/*divContent += `
-			<div class="form-bottom-section">
-					<textarea row="8"></textarea><button>Submit </button>
-			</div>
-			<div class="start-discution-btn"> <button>Start Discussion </button> </div>`;*/
 		   
 	    res.send(`<div id=forum_container>${divContent}</div>`);
 	}
