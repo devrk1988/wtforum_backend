@@ -185,6 +185,8 @@ export const getUserPosts = async (req, res, next) => {
 	if (topicInfo) {
 		var title = topicInfo.data.title;
 		var author = topicInfo.data.author.username;
+		var topicUrl = topicInfo.data.URL;
+		var topicPostCount = topicInfo.data.postCount;
 		var dname = topicInfo.data.author.displayNameAndUsername;
 		var userTitle = topicInfo.data.author.userTitle;
 		var titleHead = userTitle.charAt(0).toUpperCase();
@@ -299,6 +301,10 @@ export const getUserPosts = async (req, res, next) => {
 				`;
 			}
 		});
+
+		if(topicPostCount > 5 ){
+			divContent += `<div class="more_discussion">For more discussion <a target="_blank" href="${topicUrl}">Click Here</a><div>`;
+		}
 		   
 	    res.send(`<div id=forum_container>${divContent}</div>`);
 	}
