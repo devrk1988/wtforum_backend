@@ -148,6 +148,34 @@ export const createForumTopic = async (req, res, next) => {
     res.status(500).send({ status: 'error', message: 'Internal server error' });
   }
 };
+export const likeDislikePosts = async (req, res, next) => {
+	try {
+	  const { postid, username, userid , vote } = req.body;
+  
+	  const data = JSON.stringify({
+		vote: vote,
+		pid: postid,
+		thread_userid: userid,
+	  });
+
+	  const forumObj = new FORUM();
+
+	  const likepost = await forumObj.likeDislikeCurlRequest(res, 'post?ajax_request=1&type=json&action=vote_post&rest_api=1', 'POST', data, username);
+
+	  if (likepost) {
+		var success = likepost.data.success;
+		if( success ) {
+			  res.status(200).send({ success : success });
+			  return;
+		  }
+	  } else {
+		res.status(500).send({ status: 'error', message: 'Something went wrong' });
+	  }
+	} catch (error) {
+	  console.error('Error:', error);
+	  res.status(500).send({ status: 'error', message: 'Internal server error' });
+	}
+};
 
 export const createForumTopicPost = async (req, res, next) => {
 	try {
@@ -179,7 +207,7 @@ export const createForumTopicPost = async (req, res, next) => {
 };
 
 export const getUserPosts = async (req, res, next) => {
-	const { topicid } = req.body;
+	const { topicid, username } = req.body;
 	const forumObj = new FORUM();
 	const topicInfo = await forumObj.websiteToolboxCurlRequest(res, 'topics/'+topicid, 'GET');
 	if (topicInfo) {
@@ -291,10 +319,12 @@ export const getUserPosts = async (req, res, next) => {
 								</div>
 								<div class="post-options">
 									<textarea id="reply_${post.postId}" style="display:none;">${replyOn}</textarea>
-									<a href="javascript:void(0);" onclick="replyOnPostValidate('${post.postId}');" class="quote">${replySvg} Reply</a>
-									<a href="javascript:void(0);" class="voted-yes">${likeSvg} Like (${post.likeCount || 0})</a>
-									<a href="javascript:void(0);" class="dislike_post">${dislikeSvg} Dislike (${post.dislikeCount || 0})</a>
-								</div>
+									<a href="javascript:void(0);" onclick="replyOnPostValidate('${post.postId}');" class="quote">${replySvg} Reply</a>`;
+									if(username != author){
+										divContent += `<a href="javascript:void(0);" id="like_${post.postId}" onclick="likeDislikeOnPost('${post.postId}','up');" class="voted-yes">${likeSvg} Like (${post.likeCount || 0})</a>
+										<a href="javascript:void(0);" id="dislike_${post.postId}" onclick="likeDislikeOnPost('${post.postId}','down');" class="dislike_post">${dislikeSvg} Dislike (${post.dislikeCount || 0})</a>`;
+									}
+								divContent += `</div>
 							</div>
 						</div>
 					</div>
