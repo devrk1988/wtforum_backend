@@ -207,9 +207,9 @@ export const createForumTopicPost = async (req, res, next) => {
 };
 
 export const getUserPosts = async (req, res, next) => {
-	const { topicid, username } = req.body;
+	const { topicid, l_username } = req.body;
 	const forumObj = new FORUM();
-	const topicInfo = await forumObj.websiteToolboxCurlRequest(res, 'topics/'+topicid, 'GET');
+	const topicInfo = await forumObj.websiteToolboxCurlRequest(res, `topics/${topicid}?timestamp=${new Date().getTime()}`, 'GET');
 	if (topicInfo) {
 		var title = topicInfo.data.title;
 		var author = topicInfo.data.author.username;
@@ -217,7 +217,7 @@ export const getUserPosts = async (req, res, next) => {
 		var topicPostCount = topicInfo.data.postCount;
 		var dname = topicInfo.data.author.displayNameAndUsername;
 		var userTitle = topicInfo.data.author.userTitle;
-		var titleHead = userTitle.charAt(0).toUpperCase();
+		var titleHead = dname.charAt(0).toUpperCase();
 		var postCount = topicInfo.data.author.postCount;
 		var membersince = new Date(topicInfo.data.author.joinDateTimestamp * 1000).toDateString();
 		var firstpost = topicInfo.data.firstPost.message;
@@ -225,30 +225,20 @@ export const getUserPosts = async (req, res, next) => {
 		var firstPostId = topicInfo.data.firstPost.postId;
 		
 		var divContent = `
-			<input type="hidden" id="p_topic_id" value="${topicid}" />
-			
-			<div class="start-post-btn">
-				<button id="newpost_btn" onclick="addNewPost('${topicid}');">Add Post</button>
-			</div>
-			<div class="form-bottom-section" style="display:none;" id="new_post_initiate_form" >
-				<textarea id="post_forum_textarea" row="8"></textarea>
-				<span id="post_forum_error" class="forum_error" style="display:none;">Please enter text </span>
-				<button id="post_new_submit" onclick="addNewPostSubmit('${topicid}');">Submit </button>
-				<div id="post_loading_div" style="display:none;margin-left:25px;">Please Wait . . . .</div>
-			</div>
-
 			<div class="post-item">
 					<div class="post-author">
 						<div class="author-info">
 						<div class="author-first-letter">${titleHead}</div>
-							<em>${userTitle || 'Member'}</em>
+						<div class="author-info-inner">
+							<em>${dname || 'Member'}</em>
 							<small>${postCount || 0} posts</small>
+						</div>
 						</div>
 					</div>
 					<div class="post-body-wrapper">
 						<div class="post-body">
 							<div class="post-body-author">
-								<a href="javascript:void(0);" class="display_name">${author}</a>
+								<a style="display:none;" href="javascript:void(0);" class="display_name">${author}</a>
 								<div class="post-date">${ timestAgo }</div>
 							</div>
 							<div class="post-body-content">
@@ -277,7 +267,7 @@ export const getUserPosts = async (req, res, next) => {
 
 				const usernameMatch = blockquote ? blockquote.match(/data-username="([^"]+)"/) : null;
 				const username = usernameMatch ? usernameMatch[1] : null;
-				var cHead = post.author.userTitle.charAt(0).toUpperCase();
+				var cHead = post.author.displayNameAndUsername.charAt(0).toUpperCase();
 
 				if (blockquote && username) {
 				  const updatedBlockquote = blockquote.replace(
@@ -296,33 +286,37 @@ export const getUserPosts = async (req, res, next) => {
 						<div class="post-author">
 							<div class="author-info">
 							<div class="author-first-letter">${cHead}</div>
-								<em>${post.author.userTitle || 'Member'}</em>
+							<div class="author-info-inner">
+								<em>${post.author.displayNameAndUsername || 'Member'}</em>
 								<small>${post.author.postCount || 0} posts</small>
+							</div>
 							</div>
 						</div>
 						<div class="post-body-wrapper">
 							<div class="post-body">
 								<div class="post-body-author">
-									<a href="javascript:void(0);" class="display_name">${post.author.displayNameAndUsername}</a>
+									<a style="display:none" href="javascript:void(0);" class="display_name">${post.author.displayNameAndUsername}</a>
 									<div class="post-date">${ timeAgo(new Date(post.postTimestamp * 1000)) }</div>
 								</div>
 								<div class="post-body-content">
 									${finalMessage}
 								</div>
 								<div id="reply-section_${post.postId}" class="reply-section" style="display:none;">
+								<div class="form-bottom-section-inner">
 									<div class="field-input">
-										<textarea row="5" id="reply_text_${post.postId}"></textarea>
+										<textarea row="2" id="reply_text_${post.postId}"></textarea>
 										<span id="forum_error_${post.postId}" class="forum_error" style="display:none;">Please enter text </span>
 									</div>
 									<button id="reply_btn_${post.postId}" onclick="submitReply('${post.postId}');">Submit </button>
+									</div>
 									<div id="reply_loading_div_${post.postId}" style="display:none;margin-left:25px;">Please Wait . . . .</div>
 								</div>
 								<div class="post-options">
-									<textarea id="reply_${post.postId}" style="display:none;">${replyOn}</textarea>
+									<textarea row="2" id="reply_${post.postId}" style="display:none;">${replyOn}</textarea>
 									<a href="javascript:void(0);" onclick="replyOnPostValidate('${post.postId}');" class="quote">${replySvg} Reply</a>`;
-									if(username != author){
-										divContent += `<a href="javascript:void(0);" id="like_${post.postId}" onclick="likeDislikeOnPost('${post.postId}','up');" class="voted-yes">${likeSvg} Like (${post.likeCount || 0})</a>
-										<a href="javascript:void(0);" id="dislike_${post.postId}" onclick="likeDislikeOnPost('${post.postId}','down');" class="dislike_post">${dislikeSvg} Dislike (${post.dislikeCount || 0})</a>`;
+									if(l_username != post.author.username){
+										divContent += `<a href="javascript:void(0);" id="like_${post.postId}" onclick="likeDislikeOnPost('${post.postId}','up');" class="voted-yes" title="like">${likeSvg}(${post.likeCount || 0})</a>
+										<a href="javascript:void(0);" id="dislike_${post.postId}" onclick="likeDislikeOnPost('${post.postId}','down');" class="dislike_post" title="dislike">${dislikeSvg}(${post.dislikeCount || 0})</a>`;
 									}
 								divContent += `</div>
 							</div>
@@ -331,6 +325,20 @@ export const getUserPosts = async (req, res, next) => {
 				`;
 			}
 		});
+
+		divContent += `<input type="hidden" id="p_topic_id" value="${topicid}" />		
+			<div class="form-bottom-section" style="display:none;" id="new_post_initiate_form" >
+			<div class="form-bottom-section-inner">
+				<textarea id="post_forum_textarea" row="2"></textarea>
+					<button id="post_new_submit" onclick="addNewPostSubmit('${topicid}');">Submit </button>
+				</div>
+				<span id="post_forum_error" class="forum_error" style="display:none;">Please enter text </span>
+				<div id="post_loading_div" style="display:none;margin-left:25px;" class="loading-text">Please Wait <span class="dots"></span></div>
+			</div>
+			<div class="start-post-btn">
+				<button id="newpost_btn" onclick="addNewPost('${topicid}');">Add Post</button>
+			</div>
+			`;
 
 		if(topicPostCount > 5 ){
 			divContent += `<div class="more_discussion">For more discussion <a target="_blank" href="${topicUrl}">Click Here</a><div>`;
@@ -364,3 +372,4 @@ function timeAgo(timestamp) {
   const months = Math.floor(secondsPast / 2592000);
   return `${months} month${months > 1 ? 's' : ''} ago`;
 }
+
