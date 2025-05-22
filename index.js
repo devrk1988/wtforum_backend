@@ -15,7 +15,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // CORS Configuration
 const corsOptions = {
   credentials: true,
-  origin: ["http://localhost:8021", "https://rk-robotics.myshopify.com"],
+  origin: ["http://localhost:8021", "https://rk-robotics.myshopify.com","https://thinkrobotics.com","https://thinkrobotics-in.myshopify.com"],
 };
 app.use(cors(corsOptions));
 

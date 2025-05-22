@@ -17,6 +17,11 @@ export const forumCustomerCreateWebhook = async (req, res, next) => {
   //const requestData = JSON.parse(requestBody);
   const forumObj = new FORUM();
   
+  if(!requestBody.data){
+	  res.sendStatus(200);	
+	  return;
+  }
+
   const forum_user_id   = requestBody.data.object.userId;
   const forum_username  = requestBody.data.object.username;
   const forum_userTitle = requestBody.data.object.userTitle;
